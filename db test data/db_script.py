@@ -2,28 +2,37 @@ import psycopg2, configparser
 
 
 # импортируем настройки из .ini файла
+ini_parse = configparser.ConfigParser()  # объект парсера
+ini_parse.read('config.ini')  # читаем файл
+main = ini_parse['CONNECTION']  # первый раздел настроек
+dev = ini_parse['DEV']  # второй раздел
 
-ini_parse = configparser.ConfigParser()
-ini_parse.read('config.ini')
-main = ini_parse['DATABASE']
+# записываем настройки из файла
+DATABASE = main['DATABASE']
+USER     = main['USER']
+PASSWORD = main['PASSWORD']
+HOST     = main['HOST']
+PORT     = main['PORT']
 
-def curr_setings():
+debug_info = dev['debug_information']
+
+
+def curr_settings():
     print('Текущая конфигурация настроек:')
     print(f"\
-|  DATABASE = {main['DATABASE']}\n\
-|  USER     = {main['USER']}\n\
-|  PASSWORD = {main['PASSWORD']}\n\
-|  HOST     = {main['HOST']}\n\
-|  PORT     = {main['PORT']}\n\
+|  DATABASE = {DATABASE}\n\
+|  USER     = {USER}\n\
+|  PASSWORD = {PASSWORD}\n\
+|  HOST     = {HOST}\n\
+|  PORT     = {PORT}\n\
+|\n\
+|  debug    = {debug_info}\n\
           ")
 
 
-# служебная информация
-debug_info = False
-
 def debug(message1: str, message2: str=None, message3: str=None) -> None:
     """Выводит служебное сообщение"""
-    if not debug_info:
+    if debug_info != 'True':
         return
     print(f'    [DEBUG] {message1}')
     if not message2:
@@ -39,23 +48,13 @@ def connect():
     debug('Подключение...')
     global connection
     connection = psycopg2.connect(
-      database=DATABASE, 
-      user=USER, 
-      password=PASSWORD, 
-      host=HOST, 
-      port=PORT
+      database=main['DATABASE'], 
+      user=main['USER'], 
+      password=main['PASSWORD'], 
+      host=main['HOST'], 
+      port=main['PORT']
     )
     debug('Подклшючение успешно.')
-
-
-def curr_conn_config():
-    """Выводит текущую конфигурацию подключения к БД"""
-    print(f'Текущие настройки подключения к БД:\n\
-  |  {DATABASE = }\n\
-  |  {USER     = }\n\
-  |  {PASSWORD = }\n\
-  |  {HOST     = }\n\
-  |  {PORT     = }\n')
 
 
 def greeting():
@@ -67,9 +66,9 @@ def greeting():
  #   #  #  #   # #   # #  ##       # #   #  #       #\n\
  ####  ### #   #  ###  #   #   ####   ###   #       #\n\
 \n\
-Этот скрипт выполняет некоторые манипуляции с базой данных v2.2\n')
+Этот скрипт выполняет некоторые манипуляции с базой данных v2.3\n')
 
-    curr_setings()
+    curr_settings()
 
 
 def reconf():
@@ -458,7 +457,7 @@ def make_choice():
             run_txt_file()#  Выполняем команды из файла SQLs.txt
         
     elif choice == '9':
-        curr_conn_config()  # Выводим текущие настройки подключения
+        curr_settings()  # Выводим текущие настройки подключения
         make_choice()
         
     elif choice == '0':
