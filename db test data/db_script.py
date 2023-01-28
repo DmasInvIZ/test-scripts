@@ -3,7 +3,22 @@ import psycopg2, configparser
 
 # импортируем настройки из .ini файла
 ini_parse = configparser.ConfigParser()  # объект парсера
-ini_parse.read('config.ini')  # читаем файл
+#ini_parse.read('config.ini')  # читаем файл
+if not ini_parse.read('config.ini'):
+    with open('config.ini', "w") as configfile:
+        configfile.write('\
+[CONNECTION]\n\
+DATABASE = \n\
+USER     = \n\
+PASSWORD = \n\
+HOST     = \n\
+PORT     = \n\
+\n\
+[DEV]\n\
+debug_information = False\
+                         ')
+        
+ini_parse.read('config.ini')
 main = ini_parse['CONNECTION']  # первый раздел настроек
 dev = ini_parse['DEV']  # второй раздел
 
@@ -30,6 +45,10 @@ def curr_settings():
           ")
 
 
+def config_save():
+    pass
+
+
 def debug(message1: str, message2: str=None, message3: str=None) -> None:
     """Выводит служебное сообщение"""
     if debug_info != 'True':
@@ -48,11 +67,11 @@ def connect():
     debug('Подключение...')
     global connection
     connection = psycopg2.connect(
-      database=main['DATABASE'], 
-      user=main['USER'], 
-      password=main['PASSWORD'], 
-      host=main['HOST'], 
-      port=main['PORT']
+      database=DATABASE, 
+      user=USER, 
+      password=PASSWORD, 
+      host=HOST, 
+      port=PORT
     )
     debug('Подклшючение успешно.')
 
@@ -85,7 +104,8 @@ def reconf():
     global PORT
     PORT     = input(f'Введите порт от БД. Сейчас введено "{PORT}": ')
     print('    [OK] Конфигурация сохранена\n')
-    
+
+    config_save()
     make_choice()
 
 
