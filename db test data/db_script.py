@@ -7,6 +7,7 @@ ini_parse = configparser.ConfigParser()  # объект парсера
 if not ini_parse.read('config.ini'):
     with open('config.ini', "w") as configfile:
         configfile.write('\
+# Файл отсутствовал и был создан заново.\n\
 [CONNECTION]\n\
 DATABASE = \n\
 USER     = \n\
@@ -18,7 +19,7 @@ PORT     = \n\
 debug_information = False\
                          ')
         
-ini_parse.read('config.ini')
+ini_parse.read('config.ini')  # читаем файл
 main = ini_parse['CONNECTION']  # первый раздел настроек
 dev = ini_parse['DEV']  # второй раздел
 
